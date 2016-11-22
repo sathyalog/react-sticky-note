@@ -1,0 +1,12 @@
+{
+  "name": "react-sticky-note",
+  "version": "1.0.0",
+  "description": "react sticky board",
+  "main": "..",
+  "author": "sathya",
+  "license": "ISC",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-webserver": "^0.9.1"
+  }
+}
