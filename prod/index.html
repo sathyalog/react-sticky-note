@@ -4,6 +4,8 @@
         <script src="/lib/react.js"></script>
         <script src="/lib/react-dom.js"></script>
         <script src="/lib/babel.js"></script>
+        <script src="/lib/fetch.js"></script> <!-- fetch lorem ipsum text using api -->
+        <script src="https://npmcdn.com/react-draggable"></script>
         <link rel="stylesheet" type="text/css" href="style.css"/>
         <title>Building the note board</title>
     </head>
@@ -20,6 +22,19 @@
                   top:this.randomBetween(0,window.innerHeight-150,'px')
                 }
               },
+              /* logic to handle on edit to remain the text same as appear on note*/
+              componentDidUpdate(){
+                if(this.state.editing){
+                  this.refs.newText.focus()
+                  this.refs.newText.select()
+                }
+              },
+              /* logic to avoid re-rendering of note if we click edit and doesn't change value.
+              So, if you doesn't change value, you need not render it again by using this code*/
+              shouldComponentUpdate(nextProps, nextState){
+                return this.props.children !== nextProps.children || this.state !== nextState
+              },
+              /* logic to show notes dynamically in different positions*/
               randomBetween(x,y,s){
                 return (x + Math.ceil(Math.random()* (y-x))) + s
               },
@@ -36,7 +51,9 @@
               renderForm(){
                 return(
                   <div className="note" style={this.style}>
-                  <textarea ref="newText"></textarea>
+                  <textarea ref="newText"
+                            defaultValue={this.props.children}>
+                            </textarea>
                   <button onClick={this.save}>Save</button>
                   </div>
                 )
@@ -52,9 +69,13 @@
                   </div>
                 )
               },
-              render(){
-                return (this.state.editing)? this.renderForm() : this.renderDisplay()
-              }
+              render() {
+              return ( <ReactDraggable>
+                       {(this.state.editing) ? this.renderForm()
+                                          : this.renderDisplay()}
+                       </ReactDraggable>
+                )
+            }
             })
             var Board = React.createClass({
               propTypes:{
@@ -62,6 +83,7 @@
                     if(typeof props[propName]!=='number'){
                       return new Error('the count must be a number');
                     }
+                    /* should not allow to create notes more than 100*/
                     if(props[propName]>100){
                       return new Error('Creating these many notes is ridiculous');
                     }
@@ -72,6 +94,22 @@
                   notes:[]
                 }
               },
+              /* fetch lorel ipsum text and create notes dynamically using count in Board*/
+              componentWillMount() {
+                if (this.props.count) {
+                    var url = `http://baconipsum.com/api/?type=all-meat&sentences=${this.props.count}`
+                    fetch(url)
+                          .then(results => results.json())
+                          .then(array => array[0])
+                          .then(text => text.split('. '))
+                          .then(array => array.forEach(
+                                sentence => this.add(sentence)))
+                          .catch(function(err) {
+                            console.log("Didn't connect to the API", err)
+                          })
+                }
+            },
+              /* generate unique id for note id's */
               nextId(){
                  this.uniqueId = this.uniqueId || 0;
                  return this.uniqueId++;
@@ -118,7 +156,7 @@
               }
             })
 
-            ReactDOM.render(<Board count={10}/>,
+            ReactDOM.render(<Board count={15}/>,
               document.getElementById('react-container')
             )
 
