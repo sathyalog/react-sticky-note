@@ -60,13 +60,22 @@
               },
               getInitialState(){
                 return{
-                  notes:[
-                    {id:0,note:'Hey Sathya'},
-                    {id:1,note:'Call Mom'},
-                    {id:2,note:'Email Nisheed'},
-                    {id:3,note:'Connect with vinci'}
-                  ]
+                  notes:[]
                 }
+              },
+              nextId(){
+                 this.uniqueId = this.uniqueId || 0;
+                 return this.uniqueId++;
+              },
+              add(text){
+                var notes = [
+                    ...this.state.notes,
+                    {
+                      id:this.nextId(),
+                      note:text
+                    }
+                ]
+                this.setState({notes})
               },
               update(newText, id){
                 var notes = this.state.notes.map(
@@ -94,6 +103,7 @@
                 return(
                   <div className='board'>
                       {this.state.notes.map(this.eachNote)}
+                      <button onClick={() => this.add('New Note')} >+</button>
                   </div>
                 )
               }
