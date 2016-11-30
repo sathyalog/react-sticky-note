@@ -11,13 +11,27 @@
         <div id='react-container'></div>
         <script type="text/babel">
             var Note = React.createClass({
+              getInitialState(){
+                return {editing:false}
+              },
               edit(){
-                alert("Editing Note");
+                this.setState({editing:true})
               },
               remove(){
                 alert("Removing Note");
               },
-              render(){
+              save(){
+                this.setState({editing:false})
+              },
+              renderForm(){
+                return(
+                  <div className="note">
+                  <textarea></textarea>
+                  <button onClick={this.save}>Save</button>
+                  </div>
+                )
+              },
+              renderDisplay(){
                 return(
                   <div className="note">
                     <p>{this.props.children}</p>
@@ -27,10 +41,44 @@
                     </span>
                   </div>
                 )
+              },
+              render(){
+                return (this.state.editing)? this.renderForm() : this.renderDisplay()
+              }
+            })
+            var Board = React.createClass({
+              propTypes:{
+                  count: function(props,propName){
+                    if(typeof props[propName]!=='number'){
+                      return new Error('the count must be a number');
+                    }
+                    if(props[propName]>100){
+                      return new Error('Creating these many notes is ridiculous');
+                    }
+                  }
+              },
+              getInitialState(){
+                return{
+                  notes:[
+                    'Hey Sathya',
+                    'Call Mom',
+                    'Email Nisheed',
+                    'Connect with vinci'
+                  ]
+                }
+              },
+              render(){
+                return(
+                  <div className='board'>
+                    {this.state.notes.map((note,i)=>{
+                        return <Note key={i}>{note}</Note>
+                    })}
+                  </div>
+                )
               }
             })
 
-            ReactDOM.render(<Note>Hello Sathya!!</Note>,
+            ReactDOM.render(<Board count={100}></Board>,
               document.getElementById('react-container')
             )
 
