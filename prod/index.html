@@ -18,15 +18,16 @@
                 this.setState({editing:true})
               },
               remove(){
-                alert("Removing Note");
+                this.props.onRemove(this.props.id);
               },
               save(){
-                this.setState({editing:false})
+                this.props.onChange(this.refs.newText.value, this.props.id);
+                this.setState({editing:false});
               },
               renderForm(){
                 return(
                   <div className="note">
-                  <textarea></textarea>
+                  <textarea ref="newText"></textarea>
                   <button onClick={this.save}>Save</button>
                   </div>
                 )
@@ -60,25 +61,45 @@
               getInitialState(){
                 return{
                   notes:[
-                    'Hey Sathya',
-                    'Call Mom',
-                    'Email Nisheed',
-                    'Connect with vinci'
+                    {id:0,note:'Hey Sathya'},
+                    {id:1,note:'Call Mom'},
+                    {id:2,note:'Email Nisheed'},
+                    {id:3,note:'Connect with vinci'}
                   ]
                 }
+              },
+              update(newText, id){
+                var notes = this.state.notes.map(
+                  note => (note.id!==id)?
+                    note:{
+                        ...note,
+                        note:newText
+                    }
+                )
+                this.setState({notes})
+              },
+              remove(id){
+                var notes = this.state.notes.filter(note=>note.id!==id);
+                this.setState({notes})
+              },
+              eachNote(note){
+                return (<Note key={note.id}
+                              id={note.id}
+                              onChange={this.update}
+                              onRemove={this.remove}>
+                              {note.note}
+                              </Note>)
               },
               render(){
                 return(
                   <div className='board'>
-                    {this.state.notes.map((note,i)=>{
-                        return <Note key={i}>{note}</Note>
-                    })}
+                      {this.state.notes.map(this.eachNote)}
                   </div>
                 )
               }
             })
 
-            ReactDOM.render(<Board count={100}></Board>,
+            ReactDOM.render(<Board count={10}/>,
               document.getElementById('react-container')
             )
 
